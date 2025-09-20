@@ -36,15 +36,30 @@ class TwitterReplyEnhancer {
         transform: translateY(-1px);
       }
 
+      .tre-modal-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        z-index: 999998;
+        display: none;
+      }
+
       .tre-popup {
         position: fixed;
-        top: 35px;
-        right: 16px;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
         background: white;
         border: 1px solid #e1e8ed;
         border-radius: 16px;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.12);
-        width: 320px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        width: 400px;
+        max-width: 90vw;
+        max-height: 80vh;
+        overflow-y: auto;
         z-index: 999999;
         display: none;
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
@@ -186,6 +201,10 @@ class TwitterReplyEnhancer {
       }
 
       /* Dark mode */
+      html[data-theme="dark"] .tre-modal-overlay {
+        background: rgba(0, 0, 0, 0.8);
+      }
+
       html[data-theme="dark"] .tre-popup {
         background: #192734;
         border-color: #38444d;
@@ -262,33 +281,39 @@ class TwitterReplyEnhancer {
     button.innerHTML = '🤖 AI';
     button.title = 'AI返信生成';
 
-    const popup = this.createPopup(tweetElement);
+    const modalContainer = this.createPopup(tweetElement);
+    const overlay = modalContainer.querySelector('.tre-modal-overlay');
+    const popup = modalContainer.querySelector('.tre-popup');
+
     container.appendChild(button);
-    container.appendChild(popup);
+    document.body.appendChild(modalContainer);
 
     button.addEventListener('click', (e) => {
       e.preventDefault();
       e.stopPropagation();
 
-      // 他のポップアップを閉じる
-      document.querySelectorAll('.tre-popup').forEach(p => {
-        if (p !== popup) p.style.display = 'none';
+      // 他のモーダルを閉じる
+      document.querySelectorAll('.tre-modal-overlay').forEach(o => {
+        if (o !== overlay) {
+          o.style.display = 'none';
+          o.parentElement.querySelector('.tre-popup').style.display = 'none';
+        }
       });
 
-      popup.style.display = popup.style.display === 'block' ? 'none' : 'block';
-    });
-
-    // 外部クリックで閉じる
-    document.addEventListener('click', (e) => {
-      if (!container.contains(e.target)) {
-        popup.style.display = 'none';
-      }
+      const isVisible = overlay.style.display === 'block';
+      overlay.style.display = isVisible ? 'none' : 'block';
+      popup.style.display = isVisible ? 'none' : 'block';
     });
 
     return container;
   }
 
   createPopup(tweetElement) {
+    const modalContainer = document.createElement('div');
+
+    const overlay = document.createElement('div');
+    overlay.className = 'tre-modal-overlay';
+
     const popup = document.createElement('div');
     popup.className = 'tre-popup';
 
@@ -319,11 +344,14 @@ class TwitterReplyEnhancer {
       </div>
     `;
 
-    this.attachPopupEvents(popup, tweetElement);
-    return popup;
+    modalContainer.appendChild(overlay);
+    modalContainer.appendChild(popup);
+
+    this.attachPopupEvents(modalContainer, popup, overlay, tweetElement);
+    return modalContainer;
   }
 
-  attachPopupEvents(popup, tweetElement) {
+  attachPopupEvents(modalContainer, popup, overlay, tweetElement) {
     const closeBtn = popup.querySelector('.tre-close');
     const toneButtons = popup.querySelectorAll('.tre-tone-btn');
     const useBtn = popup.querySelector('.tre-use-btn');
@@ -334,9 +362,14 @@ class TwitterReplyEnhancer {
 
     let currentTone = null;
 
-    closeBtn.addEventListener('click', () => {
+    const closeModal = () => {
+      overlay.style.display = 'none';
       popup.style.display = 'none';
-    });
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+
+    overlay.addEventListener('click', closeModal);
 
     toneButtons.forEach(btn => {
       btn.addEventListener('click', async () => {
@@ -355,7 +388,7 @@ class TwitterReplyEnhancer {
       const replyText = textarea.value;
       if (replyText) {
         this.insertReplyToTwitter(replyText);
-        popup.style.display = 'none';
+        closeModal();
       }
     });
   }
