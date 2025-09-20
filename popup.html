@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      width: 380px;
+      padding: 16px;
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      background: #f8f9fa;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .logo {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #14171a;
+      margin: 0;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: #657786;
+      margin: 4px 0 0 0;
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: #14171a;
+      margin-bottom: 6px;
+    }
+
+    input[type="text"], input[type="password"], select, textarea {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e1e8ed;
+      border-radius: 8px;
+      font-size: 14px;
+      box-sizing: border-box;
+      transition: border-color 0.2s ease;
+      font-family: inherit;
+    }
+
+    input[type="text"]:focus, input[type="password"]:focus, select:focus {
+      outline: none;
+      border-color: #1da1f2;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #1da1f2, #0d8bd9);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      margin-bottom: 8px;
+    }
+
+    .btn:hover {
+      background: linear-gradient(135deg, #0d8bd9, #0a7bc4);
+      transform: translateY(-1px);
+    }
+
+    .btn:disabled {
+      background: #e1e8ed;
+      color: #657786;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .status {
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      text-align: center;
+      display: none;
+    }
+
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .info {
+      background: #e8f5fe;
+      border: 1px solid #1da1f2;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 16px;
+      font-size: 13px;
+      color: #0d47a1;
+    }
+
+    .instructions {
+      background: white;
+      border: 1px solid #e1e8ed;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 16px;
+    }
+
+    .instructions h3 {
+      margin: 0 0 12px 0;
+      font-size: 16px;
+      color: #14171a;
+    }
+
+    .instructions ol {
+      margin: 0;
+      padding-left: 20px;
+    }
+
+    .instructions li {
+      font-size: 13px;
+      line-height: 1.4;
+      margin-bottom: 8px;
+      color: #657786;
+    }
+
+    .version {
+      text-align: center;
+      font-size: 12px;
+      color: #657786;
+      margin-top: 16px;
+    }
+
+    .tabs {
+      display: flex;
+      margin-bottom: 20px;
+      border-bottom: 2px solid #e1e8ed;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 12px;
+      text-align: center;
+      background: none;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      color: #657786;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .tab.active {
+      color: #1da1f2;
+      border-bottom: 2px solid #1da1f2;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .profile-grid .form-group {
+      margin-bottom: 12px;
+    }
+
+    .profile-grid .form-group.full-width {
+      grid-column: 1 / -1;
+    }
+
+    textarea {
+      min-height: 60px;
+      resize: vertical;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo">🤖</div>
+    <h1 class="title">Twitter Reply Enhancer</h1>
+    <p class="subtitle">AI返信生成ツール</p>
+  </div>
+
+  <div class="info">
+    <strong>📝 使い方:</strong> TwitterでツイートのAIボタンをクリックして、4つのトーンから選んで返信を生成できます。
+  </div>
+
+  <div class="status" id="status"></div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="api">API設定</button>
+    <button class="tab" data-tab="profile">プロフィール</button>
+  </div>
+
+  <div class="tab-content active" id="api-tab">
+    <div class="form-group">
+      <label for="apiKey">OpenRouter APIキー</label>
+      <input type="password" id="apiKey" name="apiKey" placeholder="sk-or-v1-..." autocomplete="off">
+    </div>
+
+    <div class="form-group">
+      <label for="modelInput">AIモデル</label>
+      <input type="text" id="modelInput" name="modelInput" placeholder="x-ai/grok-4-fast:free" autocomplete="off">
+      <div style="font-size: 12px; color: #657786; margin-top: 4px;">
+        例: x-ai/grok-4-fast:free, openai/gpt-4o, anthropic/claude-3.5-sonnet
+      </div>
+    </div>
+
+    <button class="btn" id="saveBtn">設定を保存</button>
+    <button class="btn" id="testBtn" style="background: #17bf63;">接続テスト</button>
+  </div>
+
+  <div class="tab-content" id="profile-tab">
+    <div class="profile-grid">
+      <div class="form-group">
+        <label for="profileName">名前</label>
+        <input type="text" id="profileName" placeholder="太郎">
+      </div>
+
+      <div class="form-group">
+        <label for="profileAge">年代</label>
+        <input type="text" id="profileAge" placeholder="20代">
+      </div>
+
+      <div class="form-group full-width">
+        <label for="profilePersonality">性格</label>
+        <input type="text" id="profilePersonality" placeholder="親しみやすく、明るい性格">
+      </div>
+
+      <div class="form-group full-width">
+        <label for="profileSpeakingStyle">話し方・口調</label>
+        <input type="text" id="profileSpeakingStyle" placeholder="丁寧語を基本とし、親近感のある表現を使う">
+      </div>
+
+      <div class="form-group">
+        <label for="profileOccupation">職業</label>
+        <input type="text" id="profileOccupation" placeholder="サラリーマン">
+      </div>
+
+      <div class="form-group">
+        <label for="profileInterests">趣味・関心</label>
+        <input type="text" id="profileInterests" placeholder="テクノロジー、音楽">
+      </div>
+
+      <div class="form-group full-width">
+        <label for="profileCatchPhrase">口癖・決め台詞（任意）</label>
+        <input type="text" id="profileCatchPhrase" placeholder="〜だと思うんですよね">
+      </div>
+
+      <div class="form-group full-width">
+        <label for="profileCustomInstructions">追加の指示（任意）</label>
+        <textarea id="profileCustomInstructions" placeholder="返信生成時の追加指示があれば記入してください"></textarea>
+      </div>
+    </div>
+
+    <button class="btn" id="saveProfileBtn">プロフィールを保存</button>
+  </div>
+
+  <div class="instructions">
+    <h3>🚀 セットアップ手順</h3>
+    <ol>
+      <li>OpenRouter.ai にアクセスしてアカウントを作成</li>
+      <li>APIキーを取得して上記に入力</li>
+      <li>「設定を保存」をクリック</li>
+      <li>Twitter/X でツイートの🤖AIボタンをクリック</li>
+      <li>トーンを選んで返信を生成</li>
+    </ol>
+  </div>
+
+  <div class="version">
+    Version 1.0
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>
